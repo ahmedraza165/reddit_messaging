@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.label-text {
+    @apply block text-sm font-bold text-black mb-2;
+}
+
+.field {
+    @apply cursor-default rounded-lg bg-white py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm;
+}
+
+.button {
+    @apply bg-gradient-to-r from-green-600 to-green-500 hover:bg-gradient-to-l text-white font-bold py-2 px-4 rounded;
+}
+
+.pill {
+    @apply inline-block bg-green-200 rounded-full px-2 text-sm font-semibold text-green-500 mr-2 mb-2 cursor-default;
+}
+
+.pill-remove {
+    @apply inline-block text-green-500 text-xs font-bold px-1 rounded-full cursor-pointer;
+}
+
+.pill-remove::after {
+    content: 'x';
+}
