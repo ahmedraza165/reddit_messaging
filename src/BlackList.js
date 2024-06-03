@@ -88,21 +88,21 @@ const AddToBlockList = () => {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-200">
-      <div className="bg-white p-12 rounded-lg shadow-lg max-w-lg w-full">
+    <div className="flex justify-center items-center min-h-screen bg-gray-200 p-4">
+      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-xl">
         <h2 className="text-3xl font-bold mb-6 text-center">
           Add User to Block List
         </h2>
-        <div className="flex items-center border-b border-b-2 border-teal-500 py-3 mb-6">
+        <div className="flex items-center border-b border-b-2 border-teal-500 py-2 mb-4">
           <input
-            className="appearance-none bg-transparent border-none w-full text-gray-700 mr-3 py-2 px-4 leading-tight focus:outline-none text-xl"
+            className="appearance-none bg-transparent border-none w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none text-lg"
             type="text"
             placeholder="Enter username..."
             value={userName}
             onChange={handleInputChange}
           />
           <button
-            className="flex-shrink-0 bg-teal-500 hover:bg-teal-700 border-teal-500 hover:border-teal-700 text-xl border-4 text-white py-2 px-4 rounded"
+            className="flex-shrink-0 bg-teal-500 hover:bg-teal-700 border-teal-500 hover:border-teal-700 text-lg border-4 text-white py-1 px-2 rounded"
             type="button"
             onClick={handleAddToBlockList}
           >
@@ -113,16 +113,16 @@ const AddToBlockList = () => {
           <h3 className="text-2xl font-semibold mb-4 text-center">
             Blocked Users
           </h3>
-          <ul className="list-disc list-inside space-y-4">
+          <ul className="list-disc list-inside space-y-2 max-h-40 overflow-y-auto" style={{ scrollbarWidth: "thin", scrollbarColor: "#888 #f1f1f1" }}>
             {blockedUsers.length > 0 ? (
               blockedUsers.map((user) => (
                 <li
                   key={user}
-                  className="flex justify-between items-center text-xl"
+                  className="flex justify-between items-center text-lg"
                 >
                   <span>{user}</span>
                   <button
-                    className="flex-shrink-0 bg-red-500 hover:bg-red-700 text-white text-xl py-2 px-4 rounded"
+                    className="flex-shrink-0 bg-red-500 hover:bg-red-700 text-white text-lg py-1 px-2 rounded"
                     type="button"
                     onClick={() => handleDeleteUser(user)}
                     disabled={isLoading}
@@ -132,11 +132,30 @@ const AddToBlockList = () => {
                 </li>
               ))
             ) : (
-              <li className="text-center text-xl">No blocked users</li>
+              <li className="text-center text-lg">No blocked users</li>
             )}
           </ul>
         </div>
       </div>
+      <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 12px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: #f1f1f1;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background-color: #888;
+          border-radius: 10px;
+          border: 3px solid #f1f1f1;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #555;
+        }
+      `}</style>
     </div>
   );
 };
