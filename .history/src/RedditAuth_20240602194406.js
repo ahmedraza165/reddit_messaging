@@ -11,28 +11,11 @@ function RedditAuth() {
   const [users, setUsers] = useState([]);
   const [showLoginForm, setShowLoginForm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [totalMessages, setTotalMessages] = useState(0);
-  const [posts, setPosts] = useState([]);
 
   useEffect(() => {
     fetchUsernames();
     const intervalId = setInterval(fetchUsernames, 5000); // Fetch user data every 5 seconds
     return () => clearInterval(intervalId); // Cleanup interval on component unmount
-  }, []);
-
-  useEffect(() => {
-    const total = users.reduce((sum, user) => sum + user.message_count, 0);
-    setTotalMessages(total);
-  }, [users]);
-
-  useEffect(() => {
-    fetch(`${process.env.REACT_APP_API_BASE_URL}/api/db/allposts`, {
-      headers: new Headers({
-        "ngrok-skip-browser-warning": "69420",
-      }),
-    })
-      .then((response) => response.json())
-      .then((data) => setPosts(data));
   }, []);
 
   const fetchUsernames = () => {
@@ -176,14 +159,6 @@ function RedditAuth() {
               </button>
             </div>
           ))}
-          <div className="mt-4">
-            <span className="font-bold text-lg">Total Messages Sent: </span>
-            <span className="text-green-600">{totalMessages}</span>
-          </div>
-          <div className="mt-4">
-            <span className="font-bold text-lg">Total Posts Fetched: </span>
-            <span className="text-green-600">{posts.length}</span>
-          </div>
           <button
             className="mt-4 w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
             onClick={handleAddAnotherUser}

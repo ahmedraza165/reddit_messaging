@@ -26,7 +26,7 @@ function RedditAuth() {
   }, [users]);
 
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_API_BASE_URL}/api/db/allposts`, {
+    fetch(`${process.env.REACT_APP_API_BASE_URL}/api/db/posts`, {
       headers: new Headers({
         "ngrok-skip-browser-warning": "69420",
       }),
