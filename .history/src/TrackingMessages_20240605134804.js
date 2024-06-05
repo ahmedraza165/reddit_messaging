@@ -104,7 +104,7 @@ const Metrics = () => {
       const post = posts.find((post) => post.post_id === timestamp[0]);
       if (post) {
         const messageTime = new Date(timestamp[1]).getTime();
-        const postTime = new Date(post.post_timestamp).getTime();
+        const postTime = new Date(post.created_at).getTime();
         totalDifference += (messageTime - postTime);
         count++;
       }

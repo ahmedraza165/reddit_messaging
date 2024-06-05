@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "tailwindcss/tailwind.css";
-import { XCircleIcon } from '@heroicons/react/24/solid';
 
 function RedditAuth() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -66,31 +65,6 @@ function RedditAuth() {
     setPassword(usersPasswords[username] || "");
   };
 
-  const handleDeleteUser = (username) => {
-    fetch(`${process.env.REACT_APP_API_BASE_URL}/api/delete-userpassword`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "ngrok-skip-browser-warning": "69420",
-        },
-        body: JSON.stringify({ username }),
-    })
-        .then((response) => response.json())
-        .then((data) => {
-            if (data.success) {
-                setUsersPasswords((prev) => {
-                    const newUsersPasswords = { ...prev };
-                    delete newUsersPasswords[username];
-                    return newUsersPasswords;
-                });
-                if (username === selectedUsername) {
-                    setSelectedUsername("");
-                    setPassword("");
-                }
-            }
-        })
-        .catch((error) => console.error("Error deleting user:", error));
-};
   const handleLogin = (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -234,37 +208,20 @@ function RedditAuth() {
           </div>
         ) : (
           <>
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">
-                Select Previous User:
-              </label>
-              <div className="relative">
-                <select
-                  className="block appearance-none w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
-                  value={selectedUsername}
-                  onChange={(e) => handleUserSelect(e.target.value)}
-                >
-                  <option value="">Select User</option>
-                  {Object.keys(usersPasswords).map((username) => (
-                    <option key={username} value={username}>
-                      {username}
-                    </option>
-                  ))}
-                </select>
+            <div>
+              <label>Select Previous User:</label>
+              <select
+                value={selectedUsername}
+                onChange={(e) => handleUserSelect(e.target.value)}
+              >
+                <option value="">Select User</option>
                 {Object.keys(usersPasswords).map((username) => (
-                  <div key={username} className="flex items-center mt-2">
-                    <span className="mr-2">{username}</span>
-                    <button
-                      onClick={() => handleDeleteUser(username)}
-                      className="text-red-600 hover:text-red-800 focus:outline-none"
-                    >
-                      <XCircleIcon className="h-5 w-5" />
-                    </button>
-                  </div>
+                  <option key={username} value={username}>
+                    {username}
+                  </option>
                 ))}
-              </div>
+              </select>
             </div>
-
             <form
               className="w-full max-w-md bg-white shadow-md rounded-lg p-6"
               onSubmit={handleLogin}

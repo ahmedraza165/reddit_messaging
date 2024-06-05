@@ -104,7 +104,7 @@ const Metrics = () => {
       const post = posts.find((post) => post.post_id === timestamp[0]);
       if (post) {
         const messageTime = new Date(timestamp[1]).getTime();
-        const postTime = new Date(post.post_timestamp).getTime();
+        const postTime = new Date(post.created_at).getTime();
         totalDifference += (messageTime - postTime);
         count++;
       }
@@ -116,54 +116,50 @@ const Metrics = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <div className="container mx-auto">
-        <h1 className="text-4xl font-bold mb-6 text-center">Dashboard</h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-          <div className="bg-white shadow-md rounded-lg p-6 text-center">
-            <h2 className="text-xl font-semibold">Total Messages Sent</h2>
-            <p className="text-2xl text-green-600">{totalMessages}</p>
-          </div>
-          <div className="bg-white shadow-md rounded-lg p-6 text-center">
-            <h2 className="text-xl font-semibold">Total Posts Fetched</h2>
-            <p className="text-2xl text-green-600">{posts.length}</p>
-          </div>
-          <div className="bg-white shadow-md rounded-lg p-6 text-center">
-            <h2 className="text-xl font-semibold">Average Reachout Time</h2>
-            <p className="text-2xl text-green-600">{averageReachoutTime ? (averageReachoutTime / 1000 / 60).toFixed(2) : 'N/A'} minutes</p>
-          </div>
-        </div>
-        <div className="bg-white shadow-md rounded-lg p-6">
-          <h2 className="text-2xl font-semibold mb-4">Metrics</h2>
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-white">
-              <thead className="bg-gray-800 text-white">
-                <tr>
-                  <th className="px-4 py-2">Username</th>
-                  <th className="px-4 py-2">Total Messages</th>
-                  <th className="px-4 py-2">Opened Messages</th>
-                  <th className="px-4 py-2">Opened Percentage</th>
-                  <th className="px-4 py-2">Replied Messages</th>
-                  <th className="px-4 py-2">Replied Percentage</th>
-                  <th className="px-4 py-2">Tracking Period</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {metrics.map((metric, index) => (
-                  <tr key={index} className="hover:bg-gray-100">
-                    <td className="px-4 py-2">{metric[1]}</td>
-                    <td className="px-4 py-2">{metric[2]}</td>
-                    <td className="px-4 py-2">{metric[3]}</td>
-                    <td className="px-4 py-2">{metric[4]}%</td>
-                    <td className="px-4 py-2">{metric[5]}</td>
-                    <td className="px-4 py-2">{metric[6]}%</td>
-                    <td className="px-4 py-2">{metric[7].replace('_', ' ')}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-4">Tracking Messages</h1>
+      <div className="mb-4">
+        <h2 className="text-2xl">
+          Average Message Reachout Time: {averageReachoutTime ? (averageReachoutTime / 1000 / 60).toFixed(2) : 'N/A'} minutes
+        </h2>
+      </div>
+      <div className="mb-4">
+        <h2 className="text-2xl">
+          Total Messages Sent: {totalMessages}
+        </h2>
+      </div>
+      <div className="mb-4">
+        <h2 className="text-2xl">
+          Total Posts Fetched: {posts.length}
+        </h2>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
+          <thead className="bg-gray-800 text-white">
+            <tr>
+              <th className="px-4 py-3">Username</th>
+              <th className="px-4 py-3">Total Messages</th>
+              <th className="px-4 py-3">Opened Messages</th>
+              <th className="px-4 py-3">Opened Percentage</th>
+              <th className="px-4 py-3">Replied Messages</th>
+              <th className="px-4 py-3">Replied Percentage</th>
+              <th className="px-4 py-3">Tracking Period</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200">
+            {metrics.map((metric, index) => (
+              <tr key={index} className="transition-all hover:bg-gray-100">
+                <td className="px-4 py-3">{metric[1]}</td>
+                <td className="px-4 py-3">{metric[2]}</td>
+                <td className="px-4 py-3">{metric[3]}</td>
+                <td className="px-4 py-3">{metric[4]}%</td>
+                <td className="px-4 py-3">{metric[5]}</td>
+                <td className="px-4 py-3">{metric[6]}%</td>
+                <td className="px-4 py-3">{metric[7].replace('_', ' ')}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

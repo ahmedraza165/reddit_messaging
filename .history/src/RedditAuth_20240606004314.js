@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "tailwindcss/tailwind.css";
-import { XCircleIcon } from '@heroicons/react/24/solid';
 
 function RedditAuth() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -67,7 +66,7 @@ function RedditAuth() {
   };
 
   const handleDeleteUser = (username) => {
-    fetch(`${process.env.REACT_APP_API_BASE_URL}/api/delete-userpassword`, {
+    fetch(`${process.env.REACT_APP_API_BASE_URL}/api/delete-user`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",

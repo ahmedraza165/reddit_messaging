@@ -67,7 +67,7 @@ function RedditAuth() {
   };
 
   const handleDeleteUser = (username) => {
-    fetch(`${process.env.REACT_APP_API_BASE_URL}/api/delete-userpassword`, {
+    fetch(`${process.env.REACT_APP_API_BASE_URL}/api/delete-user`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
