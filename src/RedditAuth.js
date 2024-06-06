@@ -94,6 +94,7 @@ function RedditAuth() {
   const handleLogin = (e) => {
     e.preventDefault();
     setIsLoading(true);
+    toast.success(password);
     const loadingToastId = toast.loading("Logging in...");
     fetch(`${process.env.REACT_APP_API_BASE_URL}/api/reddit/login`, {
       method: "POST",
