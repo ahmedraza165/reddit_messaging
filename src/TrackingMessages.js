@@ -10,12 +10,14 @@ const Metrics = () => {
   const [averageReachoutTime, setAverageReachoutTime] = useState(null);
   const [users, setUsers] = useState([]);
   const [totalMessages, setTotalMessages] = useState(0);
+  const [totalDeletedMessages, setTotalDeletedMessages] = useState(0);
 
   useEffect(() => {
     fetchMetrics();
     fetchPosts();
     fetchTimestamps();
     fetchUsernames();
+    fetchDeletedMessages();
     const intervalId = setInterval(fetchUsernames, 5000); // Fetch user data every 5 seconds
     return () => clearInterval(intervalId); // Cleanup interval on component unmount
   }, []);
@@ -36,10 +38,22 @@ const Metrics = () => {
         throw new Error('Failed to fetch metrics');
       }
       const data = await response.json();
-      setMetrics(data);
+      const consolidatedMetrics = consolidateMetrics(data);
+      setMetrics(consolidatedMetrics);
     } catch (error) {
       console.error('Error fetching metrics:', error);
     }
+  };
+
+  const consolidateMetrics = (metrics) => {
+    const metricsMap = {};
+
+    metrics.forEach(metric => {
+      const key = `${metric[1]}_${metric[7]}`; // Concatenate username and tracking period as the key
+      metricsMap[key] = [...metric]; // Always replace the existing metric with the latest one
+    });
+
+    return Object.values(metricsMap);
   };
 
   const fetchPosts = async () => {
@@ -90,6 +104,28 @@ const Metrics = () => {
       .catch((error) => console.error('Error fetching usernames:', error));
   };
 
+  
+  const fetchDeletedMessages = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_BASE_URL}/api/deleted-messages`,
+        {
+          headers: new Headers({
+            "ngrok-skip-browser-warning": "69420",
+          }),
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch deleted messages");
+      }
+      const data = await response.json();
+      setTotalDeletedMessages(data.total_deleted_messages);
+    } catch (error) {
+      console.error("Error fetching deleted messages:", error);
+    }
+  };
+
+
   useEffect(() => {
     if (posts.length && timestamps.length) {
       calculateAverageReachoutTime();
@@ -104,7 +140,7 @@ const Metrics = () => {
       const post = posts.find((post) => post.post_id === timestamp[0]);
       if (post) {
         const messageTime = new Date(timestamp[1]).getTime();
-        const postTime = new Date(post.post_timestamp).getTime();
+        const postTime = new Date(post.created_at).getTime();
         totalDifference += (messageTime - postTime);
         count++;
       }
@@ -120,9 +156,12 @@ const Metrics = () => {
       <div className="container mx-auto">
         <h1 className="text-4xl font-bold mb-6 text-center">Dashboard</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-          <div className="bg-white shadow-md rounded-lg p-6 text-center">
+
+        <div className="bg-white shadow-md rounded-lg p-6 text-center">
             <h2 className="text-xl font-semibold">Total Messages Sent</h2>
-            <p className="text-2xl text-green-600">{totalMessages}</p>
+            <p className="text-2xl text-green-600">
+              {totalMessages + totalDeletedMessages}
+            </p>
           </div>
           <div className="bg-white shadow-md rounded-lg p-6 text-center">
             <h2 className="text-xl font-semibold">Total Posts Fetched</h2>

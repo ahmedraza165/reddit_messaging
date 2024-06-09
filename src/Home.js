@@ -1,9 +1,31 @@
 import React, { useState } from 'react';
 import FetchPosts from './RedditPosts';
 import DisplayPosts from './DisplayPosts';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import 'tailwindcss/tailwind.css';
 
 function Home() {
     const [posts, setPosts] = useState([]);
+
+    const handleDeleteAndSetup = async () => {
+        try {
+            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/delete-and-setup`, {
+                headers: new Headers({
+                  "ngrok-skip-browser-warning": "69420",
+                }),
+              }
+
+            );
+            if (!response.ok) {
+                throw new Error('Failed to delete database and run setup.');
+            }
+            toast.success('Database deleted and setup executed successfully!');
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred while deleting database and running setup.');
+        }
+    };
 
     return (
         <div className="flex items-center">
@@ -16,7 +38,6 @@ function Home() {
                 <DisplayPosts className="bg-white rounded-xl shadow-md" posts={posts} />
             </div>
         </div>
-
     );
 }
 

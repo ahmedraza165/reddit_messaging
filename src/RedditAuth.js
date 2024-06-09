@@ -94,7 +94,6 @@ function RedditAuth() {
   const handleLogin = (e) => {
     e.preventDefault();
     setIsLoading(true);
-    toast.success(password);
     const loadingToastId = toast.loading("Logging in...");
     fetch(`${process.env.REACT_APP_API_BASE_URL}/api/reddit/login`, {
       method: "POST",
@@ -105,6 +104,7 @@ function RedditAuth() {
       credentials: "include",
       body: JSON.stringify({ username: inputUsername, password }),
     })
+
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
@@ -125,7 +125,7 @@ function RedditAuth() {
       });
   };
 
-  const revokeAuth = (username) => {
+  const revokeAuth = (username , message_count) => {
     if (
       window.confirm(
         `Are you sure you want to revoke reddit authentication for ${username}?`
@@ -138,7 +138,7 @@ function RedditAuth() {
           "ngrok-skip-browser-warning": "69420",
         },
         credentials: "include",
-        body: JSON.stringify({ username }),
+        body: JSON.stringify({ username  ,"message_count": message_count }),
       })
         .then((response) => response.json())
         .then((data) => {
@@ -214,7 +214,7 @@ function RedditAuth() {
                 </div>
                 <button
                   className="text-red-600 hover:text-red-800"
-                  onClick={() => revokeAuth(user.username)}
+                  onClick={() => revokeAuth(user.username , user.message_count)}
                 >
                   Revoke
                 </button>

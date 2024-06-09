@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import 'tailwindcss/tailwind.css';
+import React, { useState, useEffect } from "react";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import "tailwindcss/tailwind.css";
 
 const Metrics = () => {
   const [metrics, setMetrics] = useState([]);
@@ -10,12 +10,14 @@ const Metrics = () => {
   const [averageReachoutTime, setAverageReachoutTime] = useState(null);
   const [users, setUsers] = useState([]);
   const [totalMessages, setTotalMessages] = useState(0);
+  const [totalDeletedMessages, setTotalDeletedMessages] = useState(0);
 
   useEffect(() => {
     fetchMetrics();
     fetchPosts();
     fetchTimestamps();
     fetchUsernames();
+    fetchDeletedMessages(); // Fetch deleted messages on component mount
     const intervalId = setInterval(fetchUsernames, 5000); // Fetch user data every 5 seconds
     return () => clearInterval(intervalId); // Cleanup interval on component unmount
   }, []);
@@ -27,58 +29,94 @@ const Metrics = () => {
 
   const fetchMetrics = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/metrics`, {
-        headers: new Headers({
-          "ngrok-skip-browser-warning": "69420",
-        })
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_BASE_URL}/api/metrics`,
+        {
+          headers: new Headers({
+            "ngrok-skip-browser-warning": "69420",
+          }),
+        }
+      );
       if (!response.ok) {
-        throw new Error('Failed to fetch metrics');
+        throw new Error("Failed to fetch metrics");
       }
       const data = await response.json();
+      console.log("Fetched metrics:", data);
       setMetrics(data);
+      console.log(metrics)
+      //updateMetrics(data);
     } catch (error) {
-      console.error('Error fetching metrics:', error);
+      console.error("Error fetching metrics:", error);
     }
   };
 
+  const updateMetrics = (newMetrics) => {
+    setMetrics((prevMetrics) => {
+      const updatedMetrics = [...prevMetrics];
+      newMetrics.forEach((newMetric) => {
+        const index = updatedMetrics.findIndex(
+          (metric) =>
+            metric.username === newMetric.username &&
+            metric.tracking_period === newMetric.tracking_period
+        );
+        console.log("index", index);
+        if (index !== -1) {
+          // If the metric already exists, update it
+          updatedMetrics[index] = newMetric;
+        } else {
+          // If the metric is new, add it to the list
+          updatedMetrics.push(newMetric);
+        }
+      });
+      console.log("Updated metrics:", updatedMetrics); // Log updatedMetrics here
+      return updatedMetrics;
+    });
+  };
+  
+
   const fetchPosts = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/db/allposts`, {
-        headers: new Headers({
-          "ngrok-skip-browser-warning": "69420",
-        })
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_BASE_URL}/api/db/allposts`,
+        {
+          headers: new Headers({
+            "ngrok-skip-browser-warning": "69420",
+          }),
+        }
+      );
       if (!response.ok) {
-        throw new Error('Failed to fetch posts');
+        throw new Error("Failed to fetch posts");
       }
       const data = await response.json();
       setPosts(data);
     } catch (error) {
-      console.error('Error fetching posts:', error);
+      console.error("Error fetching posts:", error);
     }
   };
 
   const fetchTimestamps = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/db/message_timestamps`, {
-        headers: new Headers({
-          "ngrok-skip-browser-warning": "69420",
-        })
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_BASE_URL}/api/db/message_timestamps`,
+        {
+          headers: new Headers({
+            "ngrok-skip-browser-warning": "69420",
+          }),
+        }
+      );
       if (!response.ok) {
-        throw new Error('Failed to fetch message timestamps');
+        throw new Error("Failed to fetch message timestamps");
       }
       const data = await response.json();
       setTimestamps(data);
     } catch (error) {
-      console.error('Error fetching message timestamps:', error);
+      console.error("Error fetching message timestamps:", error);
     }
   };
 
   const fetchUsernames = () => {
     fetch(`${process.env.REACT_APP_API_BASE_URL}/api/reddit/usernames`, {
-      credentials: 'include',
+      credentials: "include",
       headers: {
         "ngrok-skip-browser-warning": "69420",
       },
@@ -87,7 +125,27 @@ const Metrics = () => {
       .then((data) => {
         setUsers(data.users);
       })
-      .catch((error) => console.error('Error fetching usernames:', error));
+      .catch((error) => console.error("Error fetching usernames:", error));
+  };
+
+  const fetchDeletedMessages = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_BASE_URL}/api/deleted-messages`,
+        {
+          headers: new Headers({
+            "ngrok-skip-browser-warning": "69420",
+          }),
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch deleted messages");
+      }
+      const data = await response.json();
+      setTotalDeletedMessages(data.total_deleted_messages);
+    } catch (error) {
+      console.error("Error fetching deleted messages:", error);
+    }
   };
 
   useEffect(() => {
@@ -104,15 +162,23 @@ const Metrics = () => {
       const post = posts.find((post) => post.post_id === timestamp[0]);
       if (post) {
         const messageTime = new Date(timestamp[1]).getTime();
-        const postTime = new Date(post.created_at).getTime();
-        totalDifference += (messageTime - postTime);
-        count++;
+        const postTime = new Date(post.post_timestamp).getTime();
+        if (!isNaN(messageTime) && !isNaN(postTime)) {
+          totalDifference += messageTime - postTime;
+          count++;
+        }
       }
     });
 
     if (count > 0) {
       setAverageReachoutTime(totalDifference / count);
     }
+  };
+
+  const timePeriods = {
+    last_hour: "Last Hour",
+    last_12_hours: "Last 12 Hours",
+    last_24_hours: "Last 24 Hours",
   };
 
   return (
@@ -122,7 +188,9 @@ const Metrics = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
           <div className="bg-white shadow-md rounded-lg p-6 text-center">
             <h2 className="text-xl font-semibold">Total Messages Sent</h2>
-            <p className="text-2xl text-green-600">{totalMessages}</p>
+            <p className="text-2xl text-green-600">
+              {totalMessages + totalDeletedMessages}
+            </p>
           </div>
           <div className="bg-white shadow-md rounded-lg p-6 text-center">
             <h2 className="text-xl font-semibold">Total Posts Fetched</h2>
@@ -130,7 +198,12 @@ const Metrics = () => {
           </div>
           <div className="bg-white shadow-md rounded-lg p-6 text-center">
             <h2 className="text-xl font-semibold">Average Reachout Time</h2>
-            <p className="text-2xl text-green-600">{averageReachoutTime ? (averageReachoutTime / 1000 / 60).toFixed(2) : 'N/A'} minutes</p>
+            <p className="text-2xl text-green-600">
+              {averageReachoutTime
+                ? (averageReachoutTime / 1000 / 60).toFixed(2)
+                : "N/A"}{" "}
+              minutes
+            </p>
           </div>
         </div>
         <div className="bg-white shadow-md rounded-lg p-6">
@@ -151,13 +224,13 @@ const Metrics = () => {
               <tbody className="divide-y divide-gray-200">
                 {metrics.map((metric, index) => (
                   <tr key={index} className="hover:bg-gray-100">
-                    <td className="px-4 py-2">{metric[1]}</td>
-                    <td className="px-4 py-2">{metric[2]}</td>
-                    <td className="px-4 py-2">{metric[3]}</td>
-                    <td className="px-4 py-2">{metric[4]}%</td>
-                    <td className="px-4 py-2">{metric[5]}</td>
-                    <td className="px-4 py-2">{metric[6]}%</td>
-                    <td className="px-4 py-2">{metric[7].replace('_', ' ')}</td>
+                    <td className="px-4 py-2">{metric.username}</td>
+                    <td className="px-4 py-2">{metric.totalMessages}</td>
+                    <td className="px-4 py-2">{metric.openedMessages}</td>
+                    <td className="px-4 py-2">{metric.openedPercentage}%</td>
+                    <td className="px-4 py-2">{metric.repliedMessages}</td>
+                    <td className="px-4 py-2">{metric.repliedPercentage}%</td>
+                    <td className="px-4 py-2">{timePeriods[metric.tracking_period]}</td>
                   </tr>
                 ))}
               </tbody>
