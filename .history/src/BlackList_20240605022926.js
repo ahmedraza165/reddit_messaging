@@ -66,12 +66,7 @@ const AddToBlockList = () => {
       toast.error("Username cannot be empty");
       return;
     }
-
-    if (blockedUsers.includes(userName)) {
-      toast.error("User already exists in the block list");
-      return;
-    }
-
+  
     fetch(`${process.env.REACT_APP_API_BASE_URL}/api/blocked-users`, {
       method: "POST",
       headers: new Headers({
@@ -96,6 +91,7 @@ const AddToBlockList = () => {
         toast.error("Failed to add user to block list");
       });
   };
+  
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-200 p-4">

@@ -77,6 +77,12 @@ function App() {
               <li>
                 <Link to="/errors" className="text-blue-600 hover:text-blue-800">Errors</Link>
               </li>
+              <li>
+                {/* Add button to call handleDeleteAndSetup function */}
+                <button onClick={handleDeleteAndSetup} className="text-red-600 hover:text-red-800">
+                  Reset Database
+                </button>
+              </li>
             </ul>
           </nav>
 
