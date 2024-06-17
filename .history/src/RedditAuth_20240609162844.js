@@ -102,7 +102,7 @@ function RedditAuth() {
         "ngrok-skip-browser-warning": "69420",
       },
       credentials: "include",
-      body: JSON.stringify({ username: inputUsername }),
+      body: JSON.stringify({ username: inputUsername, password }),
     })
 
       .then((response) => response.json())
@@ -114,7 +114,7 @@ function RedditAuth() {
           setShowLoginForm(false);
           setIsAuthenticated(true);
           setUsername(inputUsername);
-          window.location.href = data.authUrl;
+          toast.success("Login successful");
         } else {
           toast.error("Login failed");
         }
@@ -281,6 +281,18 @@ function RedditAuth() {
                   type="text"
                   value={inputUsername}
                   onChange={(e) => setInputUsername(e.target.value)}
+                  required
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                />
+              </div>
+              <div className="mb-6">
+                <label className="block text-gray-700 text-sm font-bold mb-2">
+                  Password:
+                </label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   required
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 />
