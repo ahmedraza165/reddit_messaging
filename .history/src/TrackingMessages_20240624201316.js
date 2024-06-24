@@ -11,9 +11,6 @@ const Metrics = () => {
   const [users, setUsers] = useState([]);
   const [totalMessages, setTotalMessages] = useState(0);
   const [totalDeletedMessages, setTotalDeletedMessages] = useState(0);
-  const [postsLastHour, setPostsLastHour] = useState(0);
-  const [postsLast12Hours, setPostsLast12Hours] = useState(0);
-  const [postsLast24Hours, setPostsLast24Hours] = useState(0);
 
   useEffect(() => {
     fetchMetrics();
@@ -71,25 +68,9 @@ const Metrics = () => {
       }
       const data = await response.json();
       setPosts(data);
-      calculatePostsByTimeFrame(data);
     } catch (error) {
       console.error('Error fetching posts:', error);
     }
-  };
-
-  const calculatePostsByTimeFrame = (posts) => {
-    const now = new Date().getTime();
-    const oneHour = 60 * 60 * 1000;
-    const twelveHours = 12 * oneHour;
-    const twentyFourHours = 24 * oneHour;
-
-    const postsLastHour = posts.filter(post => now - new Date(post.created_at).getTime() <= oneHour).length;
-    const postsLast12Hours = posts.filter(post => now - new Date(post.created_at).getTime() <= twelveHours).length;
-    const postsLast24Hours = posts.filter(post => now - new Date(post.created_at).getTime() <= twentyFourHours).length;
-
-    setPostsLastHour(postsLastHour);
-    setPostsLast12Hours(postsLast12Hours);
-    setPostsLast24Hours(postsLast24Hours);
   };
 
   const fetchTimestamps = async () => {
@@ -175,7 +156,8 @@ const Metrics = () => {
       <div className="container mx-auto">
         <h1 className="text-4xl font-bold mb-6 text-center">Dashboard</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-          <div className="bg-white shadow-md rounded-lg p-6 text-center">
+
+        <div className="bg-white shadow-md rounded-lg p-6 text-center">
             <h2 className="text-xl font-semibold">Total Messages Sent</h2>
             <p className="text-2xl text-green-600">
               {totalMessages + totalDeletedMessages}
@@ -184,18 +166,6 @@ const Metrics = () => {
           <div className="bg-white shadow-md rounded-lg p-6 text-center">
             <h2 className="text-xl font-semibold">Total Posts Fetched</h2>
             <p className="text-2xl text-green-600">{posts.length}</p>
-          </div>
-          <div className="bg-white shadow-md rounded-lg p-6 text-center">
-            <h2 className="text-xl font-semibold">Posts Fetched Last Hour</h2>
-            <p className="text-2xl text-green-600">{postsLastHour}</p>
-          </div>
-          <div className="bg-white shadow-md rounded-lg p-6 text-center">
-            <h2 className="text-xl font-semibold">Posts Fetched Last 12 Hours</h2>
-            <p className="text-2xl text-green-600">{postsLast12Hours}</p>
-          </div>
-          <div className="bg-white shadow-md rounded-lg p-6 text-center">
-            <h2 className="text-xl font-semibold">Posts Fetched Last 24 Hours</h2>
-            <p className="text-2xl text-green-600">{postsLast24Hours}</p>
           </div>
           <div className="bg-white shadow-md rounded-lg p-6 text-center">
             <h2 className="text-xl font-semibold">Average Reachout Time</h2>
@@ -210,6 +180,7 @@ const Metrics = () => {
                 <tr>
                   <th className="px-4 py-2">Username</th>
                   <th className="px-4 py-2">Total Messages</th>
+                  <th className="px-4 py-2">Post Fetching</th>
                   <th className="px-4 py-2">Replied Messages</th>
                   <th className="px-4 py-2">Replied Percentage</th>
                   <th className="px-4 py-2">Tracking Period</th>
@@ -222,7 +193,7 @@ const Metrics = () => {
                     <td className="px-4 py-2">{metric[2]}</td>
                     <td className="px-4 py-2">{metric[5]}</td>
                     <td className="px-4 py-2">{metric[6]}%</td>
-                    <td className="px-4 py-2">{metric[7]}</td>
+                    <td className="px-4 py-2">{metric[7].replace('_', ' ')}</td>
                   </tr>
                 ))}
               </tbody>
