@@ -32,9 +32,18 @@ const Metrics = () => {
     };
 
     fetchData();
+    const metricsInterval = setInterval(fetchMetrics, 5000);
+    const postsInterval = setInterval(fetchPosts, 5000);
+    const timestampsInterval = setInterval(fetchTimestamps, 5000);
     const usernamesInterval = setInterval(fetchUsernames, 5000);
+    const deletedMessagesInterval = setInterval(fetchDeletedMessages, 5000);
+
     return () => {
+      clearInterval(metricsInterval);
+      clearInterval(postsInterval);
+      clearInterval(timestampsInterval);
       clearInterval(usernamesInterval);
+      clearInterval(deletedMessagesInterval);
     };
   }, []);
 

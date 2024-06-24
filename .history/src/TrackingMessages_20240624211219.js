@@ -16,26 +16,13 @@ const Metrics = () => {
   const [postsLast24Hours, setPostsLast24Hours] = useState(0);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        await Promise.all([
-          fetchMetrics(),
-          fetchPosts(),
-          fetchTimestamps(),
-          fetchUsernames(),
-          fetchDeletedMessages(),
-        ]);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        toast.error('Failed to load data. Please try again later.');
-      } 
-    };
-
-    fetchData();
-    const usernamesInterval = setInterval(fetchUsernames, 5000);
-    return () => {
-      clearInterval(usernamesInterval);
-    };
+    fetchMetrics();
+    fetchPosts();
+    fetchTimestamps();
+    fetchUsernames();
+    fetchDeletedMessages();
+    const intervalId = setInterval(fetchUsernames, 5); // Fetch user data every 5 seconds
+    return () => clearInterval(intervalId); // Cleanup interval on component unmount
   }, []);
 
   useEffect(() => {
@@ -95,22 +82,12 @@ const Metrics = () => {
     const oneHour = 60 * 60 * 1000;
     const twelveHours = 12 * oneHour;
     const twentyFourHours = 24 * oneHour;
-  
-    const postsLastHour = posts.filter(post => now - Date.parse(post.created_at) <= oneHour).length;
-    const postsLast12Hours = posts.filter(post => now - Date.parse(post.created_at) <= twelveHours).length;
-    const postsLast24Hours = posts.filter(post => now - Date.parse(post.created_at) <= twentyFourHours).length;
-  
-    // If there are no posts in the last hour, generate a random number based on 12 and 24-hour counts
-    let adjustedPostsLastHour = postsLastHour;
-    if (postsLastHour === 0) {
-      // Generate a random number of posts based on posts in the last 12 hours and 24 hours
-      const minPosts = Math.ceil(postsLast12Hours / 12);
-      const maxPosts = Math.ceil(postsLast24Hours / 24);
-      adjustedPostsLastHour = Math.floor(Math.random() * (maxPosts - minPosts + 1)) + minPosts;
-      adjustedPostsLastHour = Math.max(adjustedPostsLastHour, 1); // Ensure at least 1 post
-    }
-  
-    setPostsLastHour(adjustedPostsLastHour);
+
+    const postsLastHour = posts.filter(post => now - new Date(post.created_at).getTime() <= oneHour).length;
+    const postsLast12Hours = posts.filter(post => now - new Date(post.created_at).getTime() <= twelveHours).length;
+    const postsLast24Hours = posts.filter(post => now - new Date(post.created_at).getTime() <= twentyFourHours).length;
+
+    setPostsLastHour(postsLastHour);
     setPostsLast12Hours(postsLast12Hours);
     setPostsLast24Hours(postsLast24Hours);
   };
