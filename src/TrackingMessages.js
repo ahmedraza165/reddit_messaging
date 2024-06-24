@@ -16,13 +16,35 @@ const Metrics = () => {
   const [postsLast24Hours, setPostsLast24Hours] = useState(0);
 
   useEffect(() => {
-    fetchMetrics();
-    fetchPosts();
-    fetchTimestamps();
-    fetchUsernames();
-    fetchDeletedMessages();
-    const intervalId = setInterval(fetchUsernames, 5000); // Fetch user data every 5 seconds
-    return () => clearInterval(intervalId); // Cleanup interval on component unmount
+    const fetchData = async () => {
+      try {
+        await Promise.all([
+          fetchMetrics(),
+          fetchPosts(),
+          fetchTimestamps(),
+          fetchUsernames(),
+          fetchDeletedMessages(),
+        ]);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        toast.error('Failed to load data. Please try again later.');
+      } 
+    };
+
+    fetchData();
+    const metricsInterval = setInterval(fetchMetrics, 5000);
+    const postsInterval = setInterval(fetchPosts, 5000);
+    const timestampsInterval = setInterval(fetchTimestamps, 5000);
+    const usernamesInterval = setInterval(fetchUsernames, 5000);
+    const deletedMessagesInterval = setInterval(fetchDeletedMessages, 5000);
+
+    return () => {
+      clearInterval(metricsInterval);
+      clearInterval(postsInterval);
+      clearInterval(timestampsInterval);
+      clearInterval(usernamesInterval);
+      clearInterval(deletedMessagesInterval);
+    };
   }, []);
 
   useEffect(() => {
