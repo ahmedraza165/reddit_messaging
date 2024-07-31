@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import 'tailwindcss/tailwind.css';
+import React, { useState, useEffect } from "react";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import "tailwindcss/tailwind.css";
 
 const Metrics = () => {
   const [metrics, setMetrics] = useState([]);
@@ -14,6 +14,9 @@ const Metrics = () => {
   const [postsLastHour, setPostsLastHour] = useState(0);
   const [postsLast12Hours, setPostsLast12Hours] = useState(0);
   const [postsLast24Hours, setPostsLast24Hours] = useState(0);
+  const [messagesLastHour, setMessagesLastHour] = useState(0);
+  const [messagesLast12Hours, setMessagesLast12Hours] = useState(0);
+  const [messagesLast24Hours, setMessagesLast24Hours] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -26,9 +29,9 @@ const Metrics = () => {
           fetchDeletedMessages(),
         ]);
       } catch (error) {
-        console.error('Error fetching data:', error);
-        toast.error('Failed to load data. Please try again later.');
-      } 
+        console.error("Error fetching data:", error);
+        toast.error("Failed to load data. Please try again later.");
+      }
     };
 
     fetchData();
@@ -45,26 +48,29 @@ const Metrics = () => {
 
   const fetchMetrics = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/metrics`, {
-        headers: new Headers({
-          "ngrok-skip-browser-warning": "69420",
-        })
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_BASE_URL}/api/metrics`,
+        {
+          headers: new Headers({
+            "ngrok-skip-browser-warning": "69420",
+          }),
+        }
+      );
       if (!response.ok) {
-        throw new Error('Failed to fetch metrics');
+        throw new Error("Failed to fetch metrics");
       }
       const data = await response.json();
       const consolidatedMetrics = consolidateMetrics(data);
       setMetrics(consolidatedMetrics);
     } catch (error) {
-      console.error('Error fetching metrics:', error);
+      console.error("Error fetching metrics:", error);
     }
   };
 
   const consolidateMetrics = (metrics) => {
     const metricsMap = {};
 
-    metrics.forEach(metric => {
+    metrics.forEach((metric) => {
       const key = `${metric[1]}_${metric[7]}`; // Concatenate username and tracking period as the key
       metricsMap[key] = [...metric]; // Always replace the existing metric with the latest one
     });
@@ -74,20 +80,44 @@ const Metrics = () => {
 
   const fetchPosts = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/db/allposts`, {
-        headers: new Headers({
-          "ngrok-skip-browser-warning": "69420",
-        })
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_BASE_URL}/api/db/allposts`,
+        {
+          headers: new Headers({
+            "ngrok-skip-browser-warning": "69420",
+          }),
+        }
+      );
       if (!response.ok) {
-        throw new Error('Failed to fetch posts');
+        throw new Error("Failed to fetch posts");
       }
       const data = await response.json();
       setPosts(data);
       calculatePostsByTimeFrame(data);
     } catch (error) {
-      console.error('Error fetching posts:', error);
+      console.error("Error fetching posts:", error);
     }
+  };
+
+  const calculateMessagesByTimeFrame = (timestamps) => {
+    const now = new Date().getTime();
+    const oneHour = 60 * 60 * 1000;
+    const twelveHours = 12 * oneHour;
+    const twentyFourHours = 24 * oneHour;
+
+    const messagesLastHour = timestamps.filter(
+      (timestamp) => now - new Date(timestamp[1]).getTime() <= oneHour
+    ).length;
+    const messagesLast12Hours = timestamps.filter(
+      (timestamp) => now - new Date(timestamp[1]).getTime() <= twelveHours
+    ).length;
+    const messagesLast24Hours = timestamps.filter(
+      (timestamp) => now - new Date(timestamp[1]).getTime() <= twentyFourHours
+    ).length;
+
+    setMessagesLastHour(messagesLastHour);
+    setMessagesLast12Hours(messagesLast12Hours);
+    setMessagesLast24Hours(messagesLast24Hours);
   };
 
   const calculatePostsByTimeFrame = (posts) => {
@@ -95,21 +125,28 @@ const Metrics = () => {
     const oneHour = 60 * 60 * 1000;
     const twelveHours = 12 * oneHour;
     const twentyFourHours = 24 * oneHour;
-  
-    const postsLastHour = posts.filter(post => now - Date.parse(post.created_at) <= oneHour).length;
-    const postsLast12Hours = posts.filter(post => now - Date.parse(post.created_at) <= twelveHours).length;
-    const postsLast24Hours = posts.filter(post => now - Date.parse(post.created_at) <= twentyFourHours).length;
-  
+
+    const postsLastHour = posts.filter(
+      (post) => now - Date.parse(post.created_at) <= oneHour
+    ).length;
+    const postsLast12Hours = posts.filter(
+      (post) => now - Date.parse(post.created_at) <= twelveHours
+    ).length;
+    const postsLast24Hours = posts.filter(
+      (post) => now - Date.parse(post.created_at) <= twentyFourHours
+    ).length;
+
     // If there are no posts in the last hour, generate a random number based on 12 and 24-hour counts
     let adjustedPostsLastHour = postsLastHour;
     if (postsLastHour === 0) {
       // Generate a random number of posts based on posts in the last 12 hours and 24 hours
       const minPosts = Math.ceil(postsLast12Hours / 12);
       const maxPosts = Math.ceil(postsLast24Hours / 24);
-      adjustedPostsLastHour = Math.floor(Math.random() * (maxPosts - minPosts + 1)) + minPosts;
+      adjustedPostsLastHour =
+        Math.floor(Math.random() * (maxPosts - minPosts + 1)) + minPosts;
       adjustedPostsLastHour = Math.max(adjustedPostsLastHour, 1); // Ensure at least 1 post
     }
-  
+
     setPostsLastHour(adjustedPostsLastHour);
     setPostsLast12Hours(postsLast12Hours);
     setPostsLast24Hours(postsLast24Hours);
@@ -117,24 +154,28 @@ const Metrics = () => {
 
   const fetchTimestamps = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/db/message_timestamps`, {
-        headers: new Headers({
-          "ngrok-skip-browser-warning": "69420",
-        })
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_BASE_URL}/api/db/message_timestamps`,
+        {
+          headers: new Headers({
+            "ngrok-skip-browser-warning": "69420",
+          }),
+        }
+      );
       if (!response.ok) {
-        throw new Error('Failed to fetch message timestamps');
+        throw new Error("Failed to fetch message timestamps");
       }
       const data = await response.json();
       setTimestamps(data);
+      calculateMessagesByTimeFrame(data);
     } catch (error) {
-      console.error('Error fetching message timestamps:', error);
+      console.error("Error fetching message timestamps:", error);
     }
   };
 
   const fetchUsernames = () => {
     fetch(`${process.env.REACT_APP_API_BASE_URL}/api/reddit/usernames`, {
-      credentials: 'include',
+      credentials: "include",
       headers: {
         "ngrok-skip-browser-warning": "69420",
       },
@@ -143,10 +184,9 @@ const Metrics = () => {
       .then((data) => {
         setUsers(data.users);
       })
-      .catch((error) => console.error('Error fetching usernames:', error));
+      .catch((error) => console.error("Error fetching usernames:", error));
   };
 
-  
   const fetchDeletedMessages = async () => {
     try {
       const response = await fetch(
@@ -167,7 +207,6 @@ const Metrics = () => {
     }
   };
 
-
   useEffect(() => {
     if (posts.length && timestamps.length) {
       calculateAverageReachoutTime();
@@ -183,7 +222,7 @@ const Metrics = () => {
       if (post) {
         const messageTime = new Date(timestamp[1]).getTime();
         const postTime = new Date(post.created_at).getTime();
-        totalDifference += (messageTime - postTime);
+        totalDifference += messageTime - postTime;
         count++;
       }
     });
@@ -213,16 +252,42 @@ const Metrics = () => {
             <p className="text-2xl text-green-600">{postsLastHour}</p>
           </div>
           <div className="bg-white shadow-md rounded-lg p-6 text-center">
-            <h2 className="text-xl font-semibold">Posts Fetched Last 12 Hours</h2>
+            <h2 className="text-xl font-semibold">
+              Posts Fetched Last 12 Hours
+            </h2>
             <p className="text-2xl text-green-600">{postsLast12Hours}</p>
           </div>
           <div className="bg-white shadow-md rounded-lg p-6 text-center">
-            <h2 className="text-xl font-semibold">Posts Fetched Last 24 Hours</h2>
+            <h2 className="text-xl font-semibold">
+              Posts Fetched Last 24 Hours
+            </h2>
             <p className="text-2xl text-green-600">{postsLast24Hours}</p>
           </div>
           <div className="bg-white shadow-md rounded-lg p-6 text-center">
+            <h2 className="text-xl font-semibold">Messages Sent Last Hour</h2>
+            <p className="text-2xl text-green-600">{messagesLastHour}</p>
+          </div>
+          <div className="bg-white shadow-md rounded-lg p-6 text-center">
+            <h2 className="text-xl font-semibold">
+              Messages Sent Last 12 Hours
+            </h2>
+            <p className="text-2xl text-green-600">{messagesLast12Hours}</p>
+          </div>
+          <div className="bg-white shadow-md rounded-lg p-6 text-center">
+            <h2 className="text-xl font-semibold">
+              Messages Sent Last 24 Hours
+            </h2>
+            <p className="text-2xl text-green-600">{messagesLast24Hours}</p>
+          </div>
+
+          <div className="bg-white shadow-md rounded-lg p-6 text-center">
             <h2 className="text-xl font-semibold">Average Reachout Time</h2>
-            <p className="text-2xl text-green-600">{averageReachoutTime ? (averageReachoutTime / 1000 / 60).toFixed(2) : 'N/A'} minutes</p>
+            <p className="text-2xl text-green-600">
+              {averageReachoutTime
+                ? (averageReachoutTime / 1000 / 60).toFixed(2)
+                : "N/A"}{" "}
+              minutes
+            </p>
           </div>
         </div>
         <div className="bg-white shadow-md rounded-lg p-6">

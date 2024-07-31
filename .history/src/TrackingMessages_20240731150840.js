@@ -14,7 +14,10 @@ const Metrics = () => {
   const [postsLastHour, setPostsLastHour] = useState(0);
   const [postsLast12Hours, setPostsLast12Hours] = useState(0);
   const [postsLast24Hours, setPostsLast24Hours] = useState(0);
-
+  const [messagesLastHour, setMessagesLastHour] = useState(0);
+  const [messagesLast12Hours, setMessagesLast12Hours] = useState(0);
+  const [messagesLast24Hours, setMessagesLast24Hours] = useState(0);
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -90,6 +93,22 @@ const Metrics = () => {
     }
   };
 
+  const calculateMessagesByTimeFrame = (timestamps) => {
+    const now = new Date().getTime();
+    const oneHour = 60 * 60 * 1000;
+    const twelveHours = 12 * oneHour;
+    const twentyFourHours = 24 * oneHour;
+  
+    const messagesLastHour = timestamps.filter(timestamp => now - new Date(timestamp[1]).getTime() <= oneHour).length;
+    const messagesLast12Hours = timestamps.filter(timestamp => now - new Date(timestamp[1]).getTime() <= twelveHours).length;
+    const messagesLast24Hours = timestamps.filter(timestamp => now - new Date(timestamp[1]).getTime() <= twentyFourHours).length;
+  
+    setMessagesLastHour(messagesLastHour);
+    setMessagesLast12Hours(messagesLast12Hours);
+    setMessagesLast24Hours(messagesLast24Hours);
+  };
+  
+
   const calculatePostsByTimeFrame = (posts) => {
     const now = new Date().getTime();
     const oneHour = 60 * 60 * 1000;
@@ -127,10 +146,12 @@ const Metrics = () => {
       }
       const data = await response.json();
       setTimestamps(data);
+      calculateMessagesByTimeFrame(data);
     } catch (error) {
       console.error('Error fetching message timestamps:', error);
     }
   };
+  
 
   const fetchUsernames = () => {
     fetch(`${process.env.REACT_APP_API_BASE_URL}/api/reddit/usernames`, {
